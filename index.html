@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CORAL - Corcuera Romblon Community Link</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        coral: {
+                            50: '#fff5f5',
+                            100: '#fed7d7',
+                            500: '#e53e3e',
+                            600: '#dd6b20',
+                            700: '#0284c7', // Primary Ocean Blue
+                            800: '#0369a1',
+                            900: '#0c4a6e',
+                        },
+                        status: {
+                            normal: '#10b981',
+                            advisory: '#f59e0b',
+                            alert: '#ef4444',
+                            cancelled: '#6b7280',
+                            interruption: '#8b5cf6'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .active-tab { border-bottom: 3px solid #0284c7; color: #0284c7; font-weight: 600; }
+        /* PWA Touch animations */
+        .btn-press { transition: transform 0.1s ease, opacity 0.1s ease; }
+        .btn-press:active { transform: scale(0.96); opacity: 0.9; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-full flex flex-col justify-between selection:bg-sky-200">
+
+    <!-- TOP HEADER -->
+    <header class="bg-gradient-to-r from-sky-800 to-cyan-900 text-white sticky top-0 z-40 shadow-md">
+        <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white/10 p-2 rounded-xl backdrop-blur-sm border border-white/20">
+                    <i class="fa-solid font-bold fa-dharmachakra text-sky-300 text-xl animate-spin-slow"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-none tracking-wide flex items-center gap-1.5">
+                        CORAL 
+                        <span id="offline-badge" class="hidden bg-amber-500/90 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full uppercase">Offline</span>
+                    </h1>
+                    <p class="text-[11px] text-sky-200 font-medium">Corcuera, Romblon</p>
+                </div>
+            </div>
+
+            <!-- Top Header Action Controls -->
+            <div class="flex items-center space-x-2">
+                <!-- Language Toggle -->
+                <button onclick="toggleLanguage()" class="btn-press bg-white/15 hover:bg-white/25 border border-white/20 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center space-x-1 transition">
+                    <i class="fa-solid fa-globe text-sky-300"></i>
+                    <span id="lang-label">EN</span>
+                </button>
+
+                <!-- Notifications Button -->
+                <button onclick="openNotificationCenter()" class="btn-press relative bg-white/15 hover:bg-white/25 border border-white/20 p-2 rounded-lg text-xs transition">
+                    <i class="fa-solid fa-bell text-sky-200"></i>
+                    <span id="notif-badge" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold border border-white hidden">0</span>
+                </button>
+
+                <!-- Install PWA App Button -->
+                <button onclick="openInstallModal()" class="btn-press bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-2.5 py-1 rounded-lg text-xs flex items-center space-x-1 shadow-sm">
+                    <i class="fa-solid fa-download"></i>
+                    <span id="txt-install-btn">App</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Role Tabs Bar -->
+        <div class="max-w-md mx-auto px-4 flex border-t border-sky-700/50 text-xs font-medium">
+            <button id="tab-resident" onclick="switchView('resident')" class="flex-1 py-2.5 text-center transition flex items-center justify-center space-x-1.5 active-tab">
+                <i class="fa-solid fa-users"></i>
+                <span id="txt-tab-resident">Resident Portal</span>
+            </button>
+            <button id="tab-admin" onclick="switchView('admin')" class="flex-1 py-2.5 text-center text-sky-200 hover:text-white transition flex items-center justify-center space-x-1.5">
+                <i class="fa-solid fa-user-shield"></i>
+                <span id="txt-tab-admin">Admin Dashboard</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-md mx-auto w-full flex-1 px-4 py-4 overflow-y-auto hide-scrollbar space-y-4">
+
+        <!-- RESIDENT VIEW PORTAL -->
+        <div id="view-resident" class="space-y-4">
+            
+            <!-- Quick Status Summary Cards -->
+            <section class="grid grid-cols-3 gap-2">
+                <div class="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm text-center">
+                    <div class="text-amber-500 mb-1"><i class="fa-solid fa-bolt text-lg"></i></div>
+                    <div class="text-[10px] uppercase font-bold text-slate-400" id="txt-summary-power">Power</div>
+                    <div id="status-power-summary" class="text-xs font-bold text-emerald-600 truncate">Normal</div>
+                </div>
+                <div class="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm text-center">
+                    <div class="text-cyan-600 mb-1"><i class="fa-solid fa-ship text-lg"></i></div>
+                    <div class="text-[10px] uppercase font-bold text-slate-400" id="txt-summary-sea">Sea Travel</div>
+                    <div id="status-sea-summary" class="text-xs font-bold text-amber-600 truncate">Advisory</div>
+                </div>
+                <div class="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm text-center">
+                    <div class="text-rose-500 mb-1"><i class="fa-solid fa-shield-cat text-lg"></i></div>
+                    <div class="text-[10px] uppercase font-bold text-slate-400" id="txt-summary-disaster">Disaster</div>
+                    <div id="status-disaster-summary" class="text-xs font-bold text-emerald-600 truncate">Normal</div>
+                </div>
+            </section>
+
+            <!-- Search and Filter Section -->
+            <section class="space-y-2">
+                <div class="relative">
+                    <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-input" onkeyup="renderAnnouncements()" placeholder="Search updates, barangay, key terms..." class="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none shadow-sm">
+                </div>
+
+                <!-- Category Filters Horizontal Scroll -->
+                <div class="flex space-x-2 overflow-x-auto hide-scrollbar py-1">
+                    <button onclick="setCategoryFilter('ALL')" id="filter-ALL" class="btn-press px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-sky-700 text-white shadow-sm">
+                        <span id="txt-filter-all">All Bulletins</span>
+                    </button>
+                    <button onclick="setCategoryFilter('POWER')" id="filter-POWER" class="btn-press px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-white text-slate-600 border border-slate-200">
+                        <i class="fa-solid fa-bolt text-amber-500 mr-1"></i><span id="txt-filter-power">Power Interruption</span>
+                    </button>
+                    <button onclick="setCategoryFilter('SEA')" id="filter-SEA" class="btn-press px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-white text-slate-600 border border-slate-200">
+                        <i class="fa-solid fa-ship text-cyan-600 mr-1"></i><span id="txt-filter-sea">Sea Travel Status</span>
+                    </button>
+                    <button onclick="setCategoryFilter('DISASTER')" id="filter-DISASTER" class="btn-press px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-white text-slate-600 border border-slate-200">
+                        <i class="fa-solid fa-triangle-exclamation text-rose-500 mr-1"></i><span id="txt-filter-disaster">Disaster Advisories</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Sync & Freshness Indicator -->
+            <div class="flex items-center justify-between text-[11px] text-slate-500 px-1">
+                <span class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span id="txt-last-synced">Updated: Just now</span>
+                </span>
+                <button onclick="refreshData()" class="text-sky-700 font-semibold hover:underline flex items-center gap-1">
+                    <i class="fa-solid fa-rotate-right text-xs"></i> <span id="txt-refresh">Refresh</span>
+                </button>
+            </div>
+
+            <!-- Bulletins Feed Container -->
+            <div id="bulletins-feed" class="space-y-3">
+                <!-- Dynamic Content Injected Here -->
+            </div>
+        </div>
+
+        <!-- ADMIN DASHBOARD PORTAL -->
+        <div id="view-admin" class="hidden space-y-4">
+            
+            <!-- Auth Check Block -->
+            <div id="admin-auth-block" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm text-center space-y-3">
+                <div class="w-12 h-12 bg-sky-100 rounded-full flex items-center justify-center mx-auto text-sky-800 text-xl font-bold">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <div>
+                    <h2 class="font-bold text-slate-800" id="txt-admin-auth-title">Admin Access Verification</h2>
+                    <p class="text-xs text-slate-500 mt-1" id="txt-admin-auth-desc">Enter authorization PIN to manage announcements and publish updates for Corcuera residents.</p>
+                </div>
+                <div class="max-w-xs mx-auto space-y-2">
+                    <input type="password" id="admin-pin" maxlength="6" placeholder="Demo PIN: 1234" class="w-full text-center px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold tracking-widest focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    <button onclick="verifyAdminPIN()" class="w-full bg-sky-700 hover:bg-sky-800 text-white font-bold py-2 rounded-xl text-xs transition btn-press shadow">
+                        <span id="txt-admin-login-btn">Unlock Portal</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Authenticated Admin Content -->
+            <div id="admin-content" class="hidden space-y-4">
+                
+                <!-- Admin Header Card -->
+                <div class="bg-slate-800 text-white p-3.5 rounded-xl shadow-md flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-slate-400 font-medium" id="txt-logged-as">Logged in as:</div>
+                        <div class="font-bold text-sm text-sky-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-user-check"></i>
+                            <span>Corcuera LGU Admin</span>
+                        </div>
+                    </div>
+                    <button onclick="logoutAdmin()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs px-2.5 py-1.5 rounded-lg border border-slate-600">
+                        <i class="fa-solid fa-right-from-bracket mr-1"></i><span id="txt-logout">Exit</span>
+                    </button>
+                </div>
+
+                <!-- Create Announcement Button -->
+                <button onclick="openCreateModal()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs transition flex items-center justify-center space-x-2 shadow-sm btn-press">
+                    <i class="fa-solid fa-plus-circle text-base"></i>
+                    <span id="txt-create-btn">Create New Community Advisory</span>
+                </button>
+
+                <!-- Admin Action Sub-Tabs -->
+                <div class="flex border-b border-slate-200 text-xs font-semibold">
+                    <button onclick="switchAdminTab('manage')" id="atab-manage" class="py-2 px-4 text-sky-700 border-b-2 border-sky-700">Manage Bulletins</button>
+                    <button onclick="switchAdminTab('activity')" id="atab-activity" class="py-2 px-4 text-slate-500">Activity Logs</button>
+                </div>
+
+                <!-- Manage Bulletins Section -->
+                <div id="admin-sec-manage" class="space-y-3">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider" id="txt-active-archived">Published & Active Records</h3>
+                    <div id="admin-bulletin-list" class="space-y-3">
+                        <!-- Dynamic Admin Bulletin Cards -->
+                    </div>
+                </div>
+
+                <!-- Activity Logs Section -->
+                <div id="admin-sec-activity" class="hidden space-y-2">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider" id="txt-activity-header">System Audit Log</h3>
+                    <div id="activity-log-list" class="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100 text-xs">
+                        <!-- Activity logs dynamic injection -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER INFO BAR -->
+    <footer class="bg-white border-t border-slate-200 text-[10px] text-slate-500 py-2.5 px-4 text-center">
+        <p class="font-medium">CORAL Corcuera Romblon &copy; 2026 • LGU Public Information System</p>
+        <p class="text-slate-400 mt-0.5" id="txt-footer-disclaimer">Informational service platform. Offline functional PWA.</p>
+    </footer>
+
+    <!-- MODAL: ANNOUNCEMENT DETAIL VIEW -->
+    <div id="modal-detail" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+        <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl max-h-[90vh] overflow-y-auto p-5 space-y-4 shadow-2xl animate-in slide-in-from-bottom">
+            <div class="flex items-start justify-between">
+                <span id="modal-category-badge" class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"></span>
+                <button onclick="closeModal('modal-detail')" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div>
+                <h2 id="modal-title" class="text-base font-bold text-slate-900 leading-snug"></h2>
+                <div class="flex items-center text-xs text-slate-500 space-x-2 mt-1">
+                    <span id="modal-source" class="font-medium text-sky-800"></span>
+                    <span>•</span>
+                    <span id="modal-date"></span>
+                </div>
+            </div>
+
+            <div id="modal-image-container" class="hidden rounded-xl overflow-hidden border border-slate-200 max-h-48">
+                <img id="modal-image" src="" alt="Announcement attachment" class="w-full h-full object-cover cursor-pointer" onclick="openImageModal(this.src)">
+            </div>
+
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-slate-700 leading-relaxed whitespace-pre-line" id="modal-content">
+            </div>
+
+            <div class="border-t border-slate-100 pt-3 space-y-2">
+                <h4 class="text-[11px] font-bold text-slate-500 uppercase tracking-wider" id="txt-history-heading">Revision & Status History</h4>
+                <div id="modal-history-list" class="text-[11px] space-y-1.5 text-slate-600">
+                </div>
+            </div>
+
+            <button onclick="closeModal('modal-detail')" class="w-full bg-slate-200 hover:bg-slate-300 font-bold py-2.5 rounded-xl text-xs text-slate-700">
+                <span id="txt-close-btn">Close Bulletin</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: IMAGE FULL PREVIEW -->
+    <div id="modal-full-image" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 hidden" onclick="closeModal('modal-full-image')">
+        <div class="relative max-w-full max-h-full">
+            <img id="full-preview-img" src="" class="max-w-full max-h-[85vh] rounded-lg shadow-2xl object-contain">
+            <p class="text-center text-white text-xs mt-2 font-medium">Tap anywhere to dismiss</p>
+        </div>
+    </div>
+
+    <!-- MODAL: CREATE / EDIT ANNOUNCEMENT (ADMIN) -->
+    <div id="modal-create" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+        <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl max-h-[90vh] overflow-y-auto p-5 space-y-3 shadow-2xl">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-slate-800 text-sm" id="txt-modal-create-title">Publish Community Advisory</h3>
+                <button onclick="closeModal('modal-create')" class="text-slate-400 p-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <form id="form-announcement" onsubmit="handleFormSubmit(event)" class="space-y-3 text-xs">
+                <input type="hidden" id="form-edit-id" value="">
+
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-1">Category</label>
+                    <select id="form-category" class="w-full p-2.5 bg-slate-50 border rounded-xl font-medium focus:ring-2 focus:ring-sky-500">
+                        <option value="POWER">Power Interruption (ROMELCO)</option>
+                        <option value="SEA">Sea Travel Status (Simara Ferry / Banca)</option>
+                        <option value="DISASTER">Disaster & Weather Advisory (MDRRMO)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-1">Current Status Tag</label>
+                    <select id="form-status" class="w-full p-2.5 bg-slate-50 border rounded-xl font-medium focus:ring-2 focus:ring-sky-500">
+                        <option value="NORMAL">Normal / Cleared</option>
+                        <option value="ADVISORY">Advisory / Watch</option>
+                        <option value="INTERRUPTION">Interruption / Outage</option>
+                        <option value="ALERT">Critical Alert / Warning</option>
+                        <option value="CANCELLED">Cancelled Trips / Suspended</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-1">Announcement Title (English)</label>
+                    <input type="text" id="form-title-en" required placeholder="e.g. Scheduled Power Interruption in Brgy. Poblacion" class="w-full p-2.5 bg-slate-50 border rounded-xl">
+                </div>
+
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-1">Announcement Title (Filipino)</label>
+                    <input type="text" id="form-title-fil" required placeholder="e.g. Takdang Kawalan ng Kuryente sa Brgy. Poblacion" class="w-full p-2.5 bg-slate-50 border rounded-xl">
+                </div>
+
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-1">Issuing Source / Authority</label>
+                    <input type="text" id="form-source" required placeholder="e.g. ROMELCO Corcuera Substation / MDRRMO" class="w-full p-2.5 bg-slate-50 border rounded-xl">
+                </div>
+
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-1">Details & Scope (English)</label>
+                    <textarea id="form-desc-en" rows="3" required placeholder="Include affected barangays, time schedules, and safety instructions..." class="w-full p-2.5 bg-slate-50 border rounded-xl"></textarea>
+                </div>
+
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-1">Details & Scope (Filipino)</label>
+                    <textarea id="form-desc-fil" rows="3" required placeholder="Isama ang mga apektadong barangay, oras, at habilin sa kaligtasan..." class="w-full p-2.5 bg-slate-50 border rounded-xl"></textarea>
+                </div>
+
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-1">Image Attachment URL (Optional)</label>
+                    <input type="url" id="form-image" placeholder="https://images.unsplash.com/..." class="w-full p-2.5 bg-slate-50 border rounded-xl">
+                    <p class="text-[10px] text-slate-400 mt-0.5">Use sample or official photo link for public verification.</p>
+                </div>
+
+                <div class="pt-2 flex space-x-2">
+                    <button type="button" onclick="closeModal('modal-create')" class="w-1/3 bg-slate-200 font-bold py-2.5 rounded-xl text-slate-700">Cancel</button>
+                    <button type="submit" class="w-2/3 bg-sky-700 hover:bg-sky-800 font-bold py-2.5 rounded-xl text-white shadow btn-press">Publish / Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: IN-APP NOTIFICATION CENTER -->
+    <div id="modal-notif" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+        <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3 shadow-2xl">
+            <div class="flex items-center justify-between border-b pb-2">
+                <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-bell text-sky-700"></i>
+                    <span id="txt-notif-center-title">Community Notification Center</span>
+                </h3>
+                <button onclick="closeModal('modal-notif')" class="text-slate-400 p-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Browser push prompt toggle -->
+            <div class="bg-sky-50 p-3 rounded-xl border border-sky-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-sky-900" id="txt-push-title">Device Push Alerts</p>
+                    <p class="text-[10px] text-sky-700" id="txt-push-desc">Receive emergency alerts for sea trips & storm warnings.</p>
+                </div>
+                <button onclick="requestNotificationPermission()" class="bg-sky-700 hover:bg-sky-800 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg btn-press">
+                    <span id="txt-enable-btn">Enable Alerts</span>
+                </button>
+            </div>
+
+            <div id="notif-history-list" class="space-y-2 max-h-60 overflow-y-auto text-xs">
+                <!-- Notifications Injected Here -->
+            </div>
+
+            <button onclick="closeModal('modal-notif')" class="w-full bg-slate-100 font-bold py-2 rounded-xl text-xs text-slate-600">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: PWA INSTALLATION GUIDE & GITHUB GUIDE -->
+    <div id="modal-install" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+        <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl max-h-[90vh] overflow-y-auto p-5 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b pb-2">
+                <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-mobile-screen-button text-amber-500"></i>
+                    <span id="txt-pwa-modal-title">Install CORAL on Mobile</span>
+                </h3>
+                <button onclick="closeModal('modal-install')" class="text-slate-400 p-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-xs text-amber-900 space-y-1">
+                <p class="font-bold"><i class="fa-solid fa-circle-check text-amber-600 mr-1"></i> No Google Play Store Required!</p>
+                <p class="text-[11px] leading-relaxed">CORAL is built as a Progressive Web Application (PWA). You can install it directly from your browser to your home screen for instant offline access in Corcuera.</p>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <h4 class="font-bold text-slate-800 uppercase tracking-wider text-[11px]">Installation Steps:</h4>
+                
+                <div class="border rounded-xl p-3 bg-slate-50 space-y-1">
+                    <p class="font-bold text-sky-800"><i class="fa-brands fa-android text-emerald-600 mr-1"></i> Android (Chrome / Brave)</p>
+                    <ol class="list-decimal list-inside text-[11px] text-slate-600 space-y-1">
+                        <li>Tap browser menu <i class="fa-solid fa-ellipsis-vertical"></i> at top right.</li>
+                        <li>Select <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong>.</li>
+                        <li>Confirm prompt to launch as native app.</li>
+                    </ol>
+                </div>
+
+                <div class="border rounded-xl p-3 bg-slate-50 space-y-1">
+                    <p class="font-bold text-sky-800"><i class="fa-brands fa-apple text-slate-700 mr-1"></i> iPhone / iPad (Safari)</p>
+                    <ol class="list-decimal list-inside text-[11px] text-slate-600 space-y-1">
+                        <li>Tap Share icon <i class="fa-solid fa-share-from-square"></i> in lower toolbar.</li>
+                        <li>Scroll down and tap <strong>"Add to Home Screen"</strong>.</li>
+                        <li>Tap <strong>Add</strong> at top right.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="border-t pt-3">
+                <button onclick="closeModal('modal-install')" class="w-full bg-sky-700 text-white font-bold py-2.5 rounded-xl text-xs btn-press">
+                    Got it, Back to App
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC & LOCAL DATA STORAGE -->
+    <script>
+        // --- TRANSLATION DICTIONARIES ---
+        const i18n = {
+            en: {
+                langLabel: "EN",
+                installBtn: "App",
+                tabResident: "Resident Portal",
+                tabAdmin: "Admin Dashboard",
+                summaryPower: "Power",
+                summarySea: "Sea Travel",
+                summaryDisaster: "Disaster",
+                filterAll: "All Bulletins",
+                filterPower: "Power Interruption",
+                filterSea: "Sea Travel Status",
+                filterDisaster: "Disaster Advisories",
+                lastSynced: "Updated: Just now",
+                refresh: "Refresh",
+                adminAuthTitle: "Admin Access Verification",
+                adminAuthDesc: "Enter authorization PIN to manage announcements and publish updates for Corcuera residents.",
+                adminLoginBtn: "Unlock Portal",
+                loggedAs: "Logged in as:",
+                logout: "Exit",
+                createBtn: "Create New Community Advisory",
+                activeArchived: "Published & Active Records",
+                activityHeader: "System Audit Log",
+                footerDisclaimer: "Informational service platform. Offline functional PWA.",
+                historyHeading: "Revision & Status History",
+                closeBtn: "Close Bulletin",
+                modalCreateTitle: "Publish Community Advisory",
+                notifCenterTitle: "Community Notification Center",
+                pushTitle: "Device Push Alerts",
+                pushDesc: "Receive emergency alerts for sea trips & storm warnings.",
+                enableBtn: "Enable Alerts",
+                pwaModalTitle: "Install CORAL on Mobile"
+            },
+            fil: {
+                langLabel: "FIL",
+                installBtn: "I-install",
+                tabResident: "Portal ng Mamamayan",
+                tabAdmin: "Dashboard ng Admin",
+                summaryPower: "Kuryente",
+                summarySea: "Biyahe sa Dagat",
+                summaryDisaster: "Sakuna / Bagyo",
+                filterAll: "Lahat ng Abiso",
+                filterPower: "Kawalan ng Kuryente",
+                filterSea: "Biyahe sa Dagat",
+                filterDisaster: "Babala sa Sakuna",
+                lastSynced: "Na-update: Ngayon lang",
+                refresh: "Sariwain",
+                adminAuthTitle: "Veripikasyon ng Admin Access",
+                adminAuthDesc: "Ipasok ang PIN upang makapag-labas at makapag-bago ng mga abiso para sa Corcuera.",
+                adminLoginBtn: "Buksan ang Portal",
+                loggedAs: "Naka-login bilang:",
+                logout: "Lumabas",
+                createBtn: "Gumawa ng Bagong Abiso",
+                activeArchived: "Inilathalang mga Abiso",
+                activityHeader: "Talaan ng Gawain sa Sistema",
+                footerDisclaimer: "Impormasyong plataporma para sa komunidad. Gumagana kahit offline.",
+                historyHeading: "Kasaysayan ng Pagbabago at Status",
+                closeBtn: "Isara ang Abiso",
+                modalCreateTitle: "Maglathala ng Abiso sa Komunidad",
+                notifCenterTitle: "Sentro ng mga Abiso",
+                pushTitle: "Mga Alert sa Mobile Device",
+                pushDesc: "Makatanggap ng agarang alerto sa biyahe sa dagat at bagyo.",
+                enableBtn: "I-enable ang Alerto",
+                pwaModalTitle: "I-install ang CORAL sa Telepono"
+            }
+        };
+
+        let currentLang = 'en';
+        let currentFilter = 'ALL';
+        let isAdminLoggedIn = false;
+
+        // INITIAL MOCK DATA - Tailored specifically for Corcuera, Romblon
+        let announcements = [
+            {
+                id: 'CORAL-2026-001',
+                category: 'POWER', // POWER, SEA, DISASTER
+                status: 'INTERRUPTION', // NORMAL, ADVISORY, INTERRUPTION, ALERT, CANCELLED
+                title_en: 'Scheduled Power Outage in Brgy. Poblacion & Gobon',
+                title_fil: 'Takdang Kawalan ng Kuryente sa Brgy. Poblacion at Gobon',
+                source: 'ROMELCO Corcuera Substation',
+                date: '2026-11-02 08:00 AM',
+                updated: '2026-11-02 08:30 AM',
+                desc_en: 'ROMELCO informs residents of scheduled maintenance along Feeder 1 for line clearing and pole replacements. Affected areas: Brgy. Poblacion, Gobon, and Mahaba. Expected duration: 8:00 AM to 4:00 PM.',
+                desc_fil: 'Ipinagbibigay-alam ng ROMELCO ang nakatakdang pagpatay ng kuryente para sa maintenance ng Feeder 1 at pagpapalit ng poste. Apektadong lugar: Brgy. Poblacion, Gobon, at Mahaba. Inaasahang oras: 8:00 AM hanggang 4:00 PM.',
+                image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=600&q=80',
+                archived: false,
+                history: [
+                    { time: '2026-11-02 08:00 AM', text: 'Created initial maintenance schedule by ROMELCO Admin.' },
+                    { time: '2026-11-02 08:30 AM', text: 'Status changed to Interruption Active.' }
+                ]
+            },
+            {
+                id: 'CORAL-2026-002',
+                category: 'SEA',
+                status: 'ADVISORY',
+                title_en: 'Simara Island Ferry Schedule Adjustments',
+                title_fil: 'Pagbabago sa Oras ng Biyahe ng Simara Island Ferry',
+                source: 'PCG Sub-Station Corcuera / MB King Shark',
+                date: '2026-11-02 06:15 AM',
+                updated: '2026-11-02 06:15 AM',
+                desc_en: 'Passenger motor bancas plying Corcuera (Simara) to Calatrava / San Agustin will adjust morning departure due to moderate sea swell. Next departure from Simara Port set at 10:30 AM subject to sea conditions.',
+                desc_fil: 'Ang mga pampasaherong bangka mula Corcuera (Simara) patungong Calatrava / San Agustin ay mag-iiba ng oras ng pag-alis dahil sa katamtamang alon. Ang susunod na biyahe ay 10:30 AM depende sa panahon.',
+                image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80',
+                archived: false,
+                history: [
+                    { time: '2026-11-02 06:15 AM', text: 'Sea Travel Advisory posted following Coast Guard assessment.' }
+                ]
+            },
+            {
+                id: 'CORAL-2026-003',
+                category: 'DISASTER',
+                status: 'NORMAL',
+                title_en: 'Weather Watch: Fair Conditions over Simara Island',
+                title_fil: 'Ulat Panahon: Maayos na Panahon sa Isla ng Simara',
+                source: 'MDRRMO Corcuera / PAGASA',
+                date: '2026-11-01 04:00 PM',
+                updated: '2026-11-01 04:00 PM',
+                desc_en: 'MDRRMO Corcuera reports normal weather conditions across all 9 barangays. Coastal areas experience light to moderate breezes. No active storm signals in Romblon province.',
+                desc_fil: 'Inuulat ng MDRRMO Corcuera na maayos ang panahon sa lahat ng 9 na barangay. Walang nakataas na babala ng bagyo sa buong lalawigan ng Romblon.',
+                image: '',
+                archived: false,
+                history: [
+                    { time: '2026-11-01 04:00 PM', text: 'Routine afternoon weather monitoring report logged.' }
+                ]
+            }
+        ];
+
+        let notifications = [
+            { id: 1, title: 'Power Maintenance Alert', time: '10 mins ago', body: 'ROMELCO outage active in Poblacion.' },
+            { id: 2, title: 'Coast Guard Travel Note', time: '2 hrs ago', body: 'Sea swells monitored for Calatrava route.' }
+        ];
+
+        let activityLogs = [
+            { time: '2026-11-02 08:30 AM', user: 'ROMELCO Admin', action: 'Published Power Interruption Notice CORAL-2026-001' },
+            { time: '2026-11-02 06:15 AM', user: 'MDRRMO Admin', action: 'Updated Sea Travel status to Advisory' }
+        ];
+
+        // --- APP INITIALIZATION ---
+        window.onload = function() {
+            // Load persistent storage if available
+            if(localStorage.getItem('coral_announcements')) {
+                try {
+                    announcements = JSON.parse(localStorage.getItem('coral_announcements'));
+                } catch(e) {}
+            }
+            if(localStorage.getItem('coral_logs')) {
+                try {
+                    activityLogs = JSON.parse(localStorage.getItem('coral_logs'));
+                } catch(e) {}
+            }
+
+            renderAll();
+            checkOnlineStatus();
+            registerServiceWorker();
+
+            window.addEventListener('online', checkOnlineStatus);
+            window.addEventListener('offline', checkOnlineStatus);
+        }
+
+        function saveData() {
+            localStorage.setItem('coral_announcements', JSON.stringify(announcements));
+            localStorage.setItem('coral_logs', JSON.stringify(activityLogs));
+        }
+
+        function checkOnlineStatus() {
+            const badge = document.getElementById('offline-badge');
+            if(!navigator.onLine) {
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        // --- LANGUAGE SWITCHER ---
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'fil' : 'en';
+            document.getElementById('lang-label').innerText = i18n[currentLang].langLabel;
+            
+            // Translate static DOM keys
+            const keys = [
+                'installBtn', 'tabResident', 'tabAdmin', 'summaryPower', 'summarySea', 
+                'summaryDisaster', 'filterAll', 'filterPower', 'filterSea', 'filterDisaster',
+                'lastSynced', 'refresh', 'adminAuthTitle', 'adminAuthDesc', 'adminLoginBtn',
+                'loggedAs', 'logout', 'createBtn', 'activeArchived', 'activityHeader',
+                'footerDisclaimer', 'historyHeading', 'closeBtn', 'modalCreateTitle',
+                'notifCenterTitle', 'pushTitle', 'pushDesc', 'enableBtn', 'pwaModalTitle'
+            ];
+
+            keys.forEach(key => {
+                const elementMap = {
+                    installBtn: 'txt-install-btn',
+                    tabResident: 'txt-tab-resident',
+                    tabAdmin: 'txt-tab-admin',
+                    summaryPower: 'txt-summary-power',
+                    summarySea: 'txt-summary-sea',
+                    summaryDisaster: 'txt-summary-disaster',
+                    filterAll: 'txt-filter-all',
+                    filterPower: 'txt-filter-power',
+                    filterSea: 'txt-filter-sea',
+                    filterDisaster: 'txt-filter-disaster',
+                    lastSynced: 'txt-last-synced',
+                    refresh: 'txt-refresh',
+                    adminAuthTitle: 'txt-admin-auth-title',
+                    adminAuthDesc: 'txt-admin-auth-desc',
+                    adminLoginBtn: 'txt-admin-login-btn',
+                    loggedAs: 'txt-logged-as',
+                    logout: 'txt-logout',
+                    createBtn: 'txt-create-btn',
+                    activeArchived: 'txt-active-archived',
+                    activityHeader: 'txt-activity-header',
+                    footerDisclaimer: 'txt-footer-disclaimer',
+                    historyHeading: 'txt-history-heading',
+                    closeBtn: 'txt-close-btn',
+                    modalCreateTitle: 'txt-modal-create-title',
+                    notifCenterTitle: 'txt-notif-center-title',
+                    pushTitle: 'txt-push-title',
+                    pushDesc: 'txt-push-desc',
+                    enableBtn: 'txt-enable-btn',
+                    pwaModalTitle: 'txt-pwa-modal-title'
+                };
+                const el = document.getElementById(elementMap[key]);
+                if(el) el.innerText = i18n[currentLang][key];
+            });
+
+            renderAll();
+        }
+
+        // --- VIEW & TAB SWITCHING ---
+        function switchView(view) {
+            const resTab = document.getElementById('tab-resident');
+            const admTab = document.getElementById('tab-admin');
+            const resView = document.getElementById('view-resident');
+            const admView = document.getElementById('view-admin');
+
+            if(view === 'resident') {
+                resTab.classList.add('active-tab');
+                admTab.classList.remove('active-tab');
+                resView.classList.remove('hidden');
+                admView.classList.add('hidden');
+            } else {
+                admTab.classList.add('active-tab');
+                resTab.classList.remove('active-tab');
+                admView.classList.remove('hidden');
+                resView.classList.add('hidden');
+            }
+        }
+
+        function setCategoryFilter(cat) {
+            currentFilter = cat;
+            ['ALL', 'POWER', 'SEA', 'DISASTER'].forEach(c => {
+                const btn = document.getElementById(`filter-${c}`);
+                if(c === cat) {
+                    btn.className = "btn-press px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-sky-700 text-white shadow-sm";
+                } else {
+                    btn.className = "btn-press px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-white text-slate-600 border border-slate-200";
+                }
+            });
+            renderAnnouncements();
+        }
+
+        // --- RENDER FUNCTIONS ---
+        function renderAll() {
+            updateSummaryCards();
+            renderAnnouncements();
+            renderAdminBulletins();
+            renderActivityLogs();
+            renderNotifications();
+        }
+
+        function updateSummaryCards() {
+            const latestPower = announcements.find(a => a.category === 'POWER' && !a.archived);
+            const latestSea = announcements.find(a => a.category === 'SEA' && !a.archived);
+            const latestDisaster = announcements.find(a => a.category === 'DISASTER' && !a.archived);
+
+            document.getElementById('status-power-summary').innerText = latestPower ? getStatusBadgeText(latestPower.status) : 'Normal';
+            document.getElementById('status-sea-summary').innerText = latestSea ? getStatusBadgeText(latestSea.status) : 'Normal';
+            document.getElementById('status-disaster-summary').innerText = latestDisaster ? getStatusBadgeText(latestDisaster.status) : 'Normal';
+        }
+
+        function getStatusBadgeHTML(status) {
+            const label = getStatusBadgeText(status);
+            let colorClasses = "bg-slate-100 text-slate-700 border-slate-300";
+
+            if (status === 'NORMAL') colorClasses = "bg-emerald-50 text-emerald-700 border-emerald-200";
+            if (status === 'ADVISORY') colorClasses = "bg-amber-50 text-amber-700 border-amber-200";
+            if (status === 'INTERRUPTION') colorClasses = "bg-purple-50 text-purple-700 border-purple-200";
+            if (status === 'ALERT') colorClasses = "bg-rose-50 text-rose-700 border-rose-200";
+            if (status === 'CANCELLED') colorClasses = "bg-slate-100 text-slate-600 border-slate-300";
+
+            return `<span class="px-2 py-0.5 text-[10px] font-bold rounded-md border ${colorClasses}">${label}</span>`;
+        }
+
+        function getStatusBadgeText(status) {
+            const mapEN = { NORMAL: 'Normal', ADVISORY: 'Advisory', INTERRUPTION: 'Interruption', ALERT: 'Warning', CANCELLED: 'Cancelled' };
+            const mapFIL = { NORMAL: 'Pangkaraniwan', ADVISORY: 'Abiso', INTERRUPTION: 'Kawalan', ALERT: 'Babala', CANCELLED: 'Kanselado' };
+            return currentLang === 'en' ? mapEN[status] : mapFIL[status];
+        }
+
+        function getCategoryIcon(cat) {
+            if(cat === 'POWER') return '<i class="fa-solid fa-bolt text-amber-500"></i>';
+            if(cat === 'SEA') return '<i class="fa-solid fa-ship text-cyan-600"></i>';
+            return '<i class="fa-solid fa-triangle-exclamation text-rose-500"></i>';
+        }
+
+        function renderAnnouncements() {
+            const container = document.getElementById('bulletins-feed');
+            const searchVal = document.getElementById('search-input').value.toLowerCase();
+
+            const filtered = announcements.filter(item => {
+                if(item.archived) return false;
+                if(currentFilter !== 'ALL' && item.category !== currentFilter) return false;
+                
+                const title = currentLang === 'en' ? item.title_en : item.title_fil;
+                const desc = currentLang === 'en' ? item.desc_en : item.desc_fil;
+                
+                return title.toLowerCase().includes(searchVal) || desc.toLowerCase().includes(searchVal) || item.source.toLowerCase().includes(searchVal);
+            });
+
+            if(filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white p-8 rounded-2xl text-center border border-slate-200 text-slate-400 space-y-2">
+                        <i class="fa-solid fa-folder-open text-3xl"></i>
+                        <p class="text-xs font-semibold">No announcements found matching criteria.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => {
+                const title = currentLang === 'en' ? item.title_en : item.title_fil;
+                const desc = currentLang === 'en' ? item.desc_en : item.desc_fil;
+
+                return `
+                    <article onclick="openDetailModal('${item.id}')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer space-y-2 btn-press">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex items-center space-x-2">
+                                <span class="p-1.5 bg-slate-100 rounded-lg text-xs">${getCategoryIcon(item.category)}</span>
+                                <span class="text-[11px] font-bold text-sky-800 truncate max-w-[160px]">${item.source}</span>
+                            </div>
+                            ${getStatusBadgeHTML(item.status)}
+                        </div>
+
+                        <h3 class="font-bold text-slate-800 text-sm leading-snug">${title}</h3>
+                        <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed">${desc}</p>
+
+                        ${item.image ? `<div class="h-28 rounded-xl overflow-hidden bg-slate-100 mt-2">
+                            <img src="${item.image}" alt="Bulletin Attachment" class="w-full h-full object-cover">
+                        </div>` : ''}
+
+                        <div class="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-100">
+                            <span><i class="fa-regular fa-clock mr-1"></i>${item.date}</span>
+                            <span class="text-sky-700 font-semibold">Details <i class="fa-solid fa-chevron-right text-[8px]"></i></span>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        // --- ADMIN PORTAL LOGIC ---
+        function verifyAdminPIN() {
+            const pin = document.getElementById('admin-pin').value;
+            if(pin === '1234') { // Demo hardcoded pin
+                isAdminLoggedIn = true;
+                document.getElementById('admin-auth-block').classList.add('hidden');
+                document.getElementById('admin-content').classList.remove('hidden');
+                renderAdminBulletins();
+                logActivity('LGU Admin authenticated into management dashboard.');
+            } else {
+                alert('Invalid Admin PIN. Demo password is: 1234');
+            }
+        }
+
+        function logoutAdmin() {
+            isAdminLoggedIn = false;
+            document.getElementById('admin-auth-block').classList.remove('hidden');
+            document.getElementById('admin-content').classList.add('hidden');
+            document.getElementById('admin-pin').value = '';
+        }
+
+        function switchAdminTab(tab) {
+            const secManage = document.getElementById('admin-sec-manage');
+            const secActivity = document.getElementById('admin-sec-activity');
+            const tabManage = document.getElementById('atab-manage');
+            const tabActivity = document.getElementById('atab-activity');
+
+            if(tab === 'manage') {
+                secManage.classList.remove('hidden');
+                secActivity.classList.add('hidden');
+                tabManage.className = "py-2 px-4 text-sky-700 border-b-2 border-sky-700";
+                tabActivity.className = "py-2 px-4 text-slate-500";
+            } else {
+                secManage.classList.add('hidden');
+                secActivity.classList.remove('hidden');
+                tabManage.className = "py-2 px-4 text-slate-500";
+                tabActivity.className = "py-2 px-4 text-sky-700 border-b-2 border-sky-700";
+            }
+        }
+
+        function renderAdminBulletins() {
+            const container = document.getElementById('admin-bulletin-list');
+            container.innerHTML = announcements.map(item => {
+                return `
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 text-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-slate-500">${item.id}</span>
+                            <span class="${item.archived ? 'bg-slate-200 text-slate-600' : 'bg-emerald-100 text-emerald-800'} px-2 py-0.5 rounded text-[10px] font-bold">
+                                ${item.archived ? 'Archived' : 'Active'}
+                            </span>
+                        </div>
+                        <div class="font-bold text-slate-800">${item.title_en}</div>
+                        <div class="text-[10px] text-slate-400">${item.source} • ${item.date}</div>
+                        <div class="flex items-center space-x-2 pt-1 border-t">
+                            <button onclick="editAnnouncement('${item.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg font-medium text-[11px]">
+                                <i class="fa-solid fa-pen mr-1"></i>Edit
+                            </button>
+                            <button onclick="toggleArchive('${item.id}')" class="bg-amber-50 hover:bg-amber-100 text-amber-700 px-2.5 py-1 rounded-lg font-medium text-[11px]">
+                                ${item.archived ? 'Unarchive' : 'Archive'}
+                            </button>
+                            <button onclick="deleteAnnouncement('${item.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2.5 py-1 rounded-lg font-medium text-[11px]">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderActivityLogs() {
+            const container = document.getElementById('activity-log-list');
+            container.innerHTML = activityLogs.map(log => `
+                <div class="p-2.5 space-y-0.5">
+                    <div class="flex items-center justify-between text-slate-400 text-[10px]">
+                        <span>${log.user}</span>
+                        <span>${log.time}</span>
+                    </div>
+                    <div class="text-slate-700 font-medium">${log.action}</div>
+                </div>
+            `).join('');
+        }
+
+        function logActivity(action) {
+            const now = new Date().toLocaleString('en-US', { hour12: true });
+            activityLogs.unshift({
+                time: now,
+                user: 'Corcuera Admin',
+                action: action
+            });
+            saveData();
+            renderActivityLogs();
+        }
+
+        // --- CREATE / EDIT / ARCHIVE ACTIONS ---
+        function openCreateModal() {
+            document.getElementById('form-edit-id').value = '';
+            document.getElementById('form-announcement').reset();
+            document.getElementById('modal-create').classList.remove('hidden');
+        }
+
+        function editAnnouncement(id) {
+            const item = announcements.find(a => a.id === id);
+            if(!item) return;
+
+            document.getElementById('form-edit-id').value = item.id;
+            document.getElementById('form-category').value = item.category;
+            document.getElementById('form-status').value = item.status;
+            document.getElementById('form-title-en').value = item.title_en;
+            document.getElementById('form-title-fil').value = item.title_fil;
+            document.getElementById('form-source').value = item.source;
+            document.getElementById('form-desc-en').value = item.desc_en;
+            document.getElementById('form-desc-fil').value = item.desc_fil;
+            document.getElementById('form-image').value = item.image || '';
+
+            document.getElementById('modal-create').classList.remove('hidden');
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const editId = document.getElementById('form-edit-id').value;
+            const nowStr = new Date().toLocaleString('en-US', { hour12: true });
+
+            if(editId) {
+                // Edit existing
+                const index = announcements.findIndex(a => a.id === editId);
+                if(index !== -1) {
+                    announcements[index].category = document.getElementById('form-category').value;
+                    announcements[index].status = document.getElementById('form-status').value;
+                    announcements[index].title_en = document.getElementById('form-title-en').value;
+                    announcements[index].title_fil = document.getElementById('form-title-fil').value;
+                    announcements[index].source = document.getElementById('form-source').value;
+                    announcements[index].desc_en = document.getElementById('form-desc-en').value;
+                    announcements[index].desc_fil = document.getElementById('form-desc-fil').value;
+                    announcements[index].image = document.getElementById('form-image').value;
+                    announcements[index].updated = nowStr;
+                    announcements[index].history.unshift({ time: nowStr, text: 'Updated parameters by Admin.' });
+
+                    logActivity(`Updated Advisory ${editId}`);
+                }
+            } else {
+                // Create new
+                const newId = `CORAL-2026-0${announcements.length + 1}`;
+                const newItem = {
+                    id: newId,
+                    category: document.getElementById('form-category').value,
+                    status: document.getElementById('form-status').value,
+                    title_en: document.getElementById('form-title-en').value,
+                    title_fil: document.getElementById('form-title-fil').value,
+                    source: document.getElementById('form-source').value,
+                    date: nowStr,
+                    updated: nowStr,
+                    desc_en: document.getElementById('form-desc-en').value,
+                    desc_fil: document.getElementById('form-desc-fil').value,
+                    image: document.getElementById('form-image').value,
+                    archived: false,
+                    history: [{ time: nowStr, text: 'Initial bulletin creation by Admin.' }]
+                };
+
+                announcements.unshift(newItem);
+                logActivity(`Created & Published Advisory ${newId}`);
+
+                // Push new notification
+                notifications.unshift({
+                    id: Date.now(),
+                    title: newItem.title_en,
+                    time: 'Just now',
+                    body: newItem.source
+                });
+                renderNotifications();
+            }
+
+            saveData();
+            renderAll();
+            closeModal('modal-create');
+        }
+
+        function toggleArchive(id) {
+            const item = announcements.find(a => a.id === id);
+            if(item) {
+                item.archived = !item.archived;
+                logActivity(`${item.archived ? 'Archived' : 'Unarchived'} Bulletin ${id}`);
+                saveData();
+                renderAll();
+            }
+        }
+
+        function deleteAnnouncement(id) {
+            if(confirm('Are you sure you want to permanent delete this announcement?')) {
+                announcements = announcements.filter(a => a.id !== id);
+                logActivity(`Deleted Bulletin ${id}`);
+                saveData();
+                renderAll();
+            }
+        }
+
+        // --- MODAL DETAILED VIEWS ---
+        function openDetailModal(id) {
+            const item = announcements.find(a => a.id === id);
+            if(!item) return;
+
+            const title = currentLang === 'en' ? item.title_en : item.title_fil;
+            const desc = currentLang === 'en' ? item.desc_en : item.desc_fil;
+
+            document.getElementById('modal-category-badge').innerHTML = `${getStatusBadgeText(item.status)}`;
+            document.getElementById('modal-category-badge').className = `px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${item.status === 'ALERT' ? 'bg-rose-100 text-rose-800' : 'bg-sky-100 text-sky-800'}`;
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-source').innerText = item.source;
+            document.getElementById('modal-date').innerText = item.date;
+            document.getElementById('modal-content').innerText = desc;
+
+            const imgContainer = document.getElementById('modal-image-container');
+            const imgEl = document.getElementById('modal-image');
+            if(item.image) {
+                imgEl.src = item.image;
+                imgContainer.classList.remove('hidden');
+            } else {
+                imgContainer.classList.add('hidden');
+            }
+
+            // Render revision history
+            const historyList = document.getElementById('modal-history-list');
+            historyList.innerHTML = item.history.map(h => `
+                <div class="flex items-start space-x-1.5">
+                    <i class="fa-solid fa-circle-dot text-[8px] text-sky-600 mt-1"></i>
+                    <div>
+                        <span class="font-bold text-slate-500">${h.time}:</span>
+                        <span>${h.text}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('modal-detail').classList.remove('hidden');
+        }
+
+        function openImageModal(src) {
+            document.getElementById('full-preview-img').src = src;
+            document.getElementById('modal-full-image').classList.remove('hidden');
+        }
+
+        function openNotificationCenter() {
+            document.getElementById('modal-notif').classList.remove('hidden');
+        }
+
+        function openInstallModal() {
+            document.getElementById('modal-install').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function refreshData() {
+            renderAll();
+            const syncedText = document.getElementById('txt-last-synced');
+            syncedText.innerText = currentLang === 'en' ? 'Updated: Just now' : 'Na-update: Ngayon lang';
+        }
+
+        function renderNotifications() {
+            const list = document.getElementById('notif-history-list');
+            const badge = document.getElementById('notif-badge');
+
+            if(notifications.length > 0) {
+                badge.classList.remove('hidden');
+                badge.innerText = notifications.length;
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            list.innerHTML = notifications.map(n => `
+                <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                    <div class="flex items-center justify-between text-slate-800 font-bold">
+                        <span>${n.title}</span>
+                        <span class="text-[9px] text-slate-400">${n.time}</span>
+                    </div>
+                    <div class="text-[11px] text-slate-600 mt-0.5">${n.body}</div>
+                </div>
+            `).join('');
+        }
+
+        function requestNotificationPermission() {
+            if ("Notification" in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        alert("Device Push Notifications enabled for CORAL Corcuera!");
+                    } else {
+                        alert("Notifications permission was denied or dismissed.");
+                    }
+                });
+            } else {
+                alert("This browser does not support web push notifications.");
+            }
+        }
+
+        // --- SERVICE WORKER FOR PWA OFFLINE ---
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    const CACHE_NAME = 'coral-corcuera-v1';
+                    self.addEventListener('install', (e) => {
+                        e.waitUntil(
+                            caches.open(CACHE_NAME).then((cache) => {
+                                return cache.addAll(['/']);
+                            })
+                        );
+                    });
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(
+                            caches.match(e.request).then((response) => {
+                                return response || fetch(e.request);
+                            })
+                        );
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(() => {});
+            }
+        }
+    </script>
+</body>
+</html>
